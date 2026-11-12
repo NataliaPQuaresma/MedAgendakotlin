@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">MedAgenda</string>
+
+    <!-- Campos comuns -->
+    <string name="campo_nome">Nome completo</string>
+    <string name="campo_telefone">Telefone com DDD</string>
+    <string name="campo_email">E-mail</string>
+    <string name="campo_senha">Senha</string>
+    <string name="campo_confirmar_senha">Confirmar senha</string>
+    <string name="campo_crm">CRM</string>
+    <string name="campo_especialidade">Especialidade</string>
+
+    <!-- Login -->
+    <string name="login_titulo">Bem-vindo</string>
+    <string name="login_subtitulo">Entre para agendar e acompanhar suas consultas</string>
+    <string name="btn_entrar">Entrar</string>
+    <string name="btn_criar_conta">Criar conta</string>
+    <string name="login_teste">Acesso de teste\nPaciente: teste@email.com / 123456\nMédico: medico@email.com / 123456</string>
+
+    <!-- Escolha do tipo de cadastro -->
+    <string name="escolha_titulo">Criar conta</string>
+    <string name="escolha_subtitulo">Como você vai usar o MedAgenda?</string>
+    <string name="escolha_paciente">Sou paciente</string>
+    <string name="escolha_paciente_desc">Quero agendar consultas</string>
+    <string name="escolha_medico">Sou médico</string>
+    <string name="escolha_medico_desc">Quero atender pacientes</string>
+
+    <!-- Cadastros -->
+    <string name="cadastro_paciente_titulo">Cadastro de Paciente</string>
+    <string name="cadastro_medico_titulo">Cadastro de Médico</string>
+    <string name="btn_cadastrar">Cadastrar</string>
+    <string name="btn_voltar">Voltar</string>
+    <string name="msg_cadastro_ok">Cadastro realizado! Faça login para continuar.</string>
+
+    <!-- Principal -->
+    <string name="principal_ola">Olá, %1$s!</string>
+    <string name="principal_tipo_paciente">Você entrou como paciente.</string>
+    <string name="principal_tipo_medico">Você entrou como médico.</string>
+    <string name="btn_sair">Sair</string>
+
+    <!-- Erros de validação -->
+    <string name="erro_obrigatorio">Campo obrigatório</string>
+    <string name="erro_email">E-mail inválido</string>
+    <string name="erro_telefone">Informe o telefone com DDD (10 ou 11 dígitos)</string>
+    <string name="erro_senha_curta">A senha deve ter pelo menos 6 caracteres</string>
+    <string name="erro_senhas_diferentes">As senhas não conferem</string>
+</resources>

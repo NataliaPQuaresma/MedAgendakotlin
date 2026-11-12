@@ -1,0 +1,12 @@
+*.iml
+.gradle
+.kotlin
+/local.properties
+# Configurações pessoais do Android Studio (cada pessoa tem as suas)
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
