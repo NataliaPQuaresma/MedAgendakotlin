@@ -1,0 +1,3 @@
+venv/ 
+#ignora uma pasta de arquivos temporários que o ptyhon cria sozinho 
+__pycache__/  
