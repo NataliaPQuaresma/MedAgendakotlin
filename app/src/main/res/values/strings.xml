@@ -1,3 +1,8 @@
+<!--
+    TODOS OS TEXTOS DO APP ficam aqui.
+    Por que: se precisar mudar um texto, muda num lugar só. E facilita traduzir o app.
+    No XML das telas, usa-se @string/nome. No Kotlin, getString(R.string.nome).
+-->
 <resources>
     <string name="app_name">MedAgenda</string>
 
@@ -32,7 +37,7 @@
     <string name="btn_voltar">Voltar</string>
     <string name="msg_cadastro_ok">Cadastro realizado! Faça login para continuar.</string>
 
-    <!-- Principal -->
+    <!-- Principal. O %1$s é trocado pelo nome da pessoa no Kotlin. -->
     <string name="principal_ola">Olá, %1$s!</string>
     <string name="principal_tipo_paciente">Você entrou como paciente.</string>
     <string name="principal_tipo_medico">Você entrou como médico.</string>

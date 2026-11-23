@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    VISUAL DA TELA PRINCIPAL (depois do login)
+    Código que controla esta tela: ui/principal/PrincipalActivity.kt
+
+    - txtOla e txtTipo começam vazios: o Kotlin preenche com o nome e o tipo de quem entrou.
+      O "tools:text" só aparece na pré-visualização do Android Studio, não no app.
+    - layoutAgendaMedico (agenda com calendário) e layoutPaciente (botão Agendar e lista
+      de consultas) começam escondidos (visibility="gone"). O Kotlin mostra só a seção
+      do tipo de usuário que fez login.
+    - ScrollView permite rolar quando a lista de consultas fica grande.
+-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"

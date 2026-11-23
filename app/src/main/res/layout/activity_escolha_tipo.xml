@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    VISUAL DA TELA DE ESCOLHA: "Sou paciente" ou "Sou médico"
+    Código que controla esta tela: ui/cadastro/EscolhaTipoActivity.kt
+
+    Cada opção é um MaterialCardView (um "cartão" com borda) que pode ser tocado
+    (clickable="true"). O Kotlin acha cada cartão pelo id (cardPaciente, cardMedico).
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"

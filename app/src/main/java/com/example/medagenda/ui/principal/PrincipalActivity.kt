@@ -41,6 +41,14 @@ import java.util.Locale
  *    - Sempre que o paciente volta da tela de agendamento ou o médico volta para o app,
  *      as consultas são recarregadas do repositório garantindo que a tela sempre reflita
  *      o estado mais atualizado dos dados.
+ *
+ * EM PALAVRAS SIMPLES:
+ * - É a tela que abre depois do login (ou depois do cadastro do paciente).
+ * - Mostra "Olá, {nome}!" e, conforme o tipo de usuário, a agenda do médico
+ *   ou as consultas do paciente.
+ * - Os dados de quem entrou vêm do `MedAgendaRepository.usuarioLogado`,
+ *   preenchido no momento do login.
+ * - Layout: res/layout/activity_principal.xml
  */
 class PrincipalActivity : AppCompatActivity() {
 
@@ -48,17 +56,20 @@ class PrincipalActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // Verificação de autenticação: se a sessão for nula, redireciona ao Login
+        // (ex.: o Android fechou o app para liberar memória e reabriu direto nesta tela)
         val usuario = MedAgendaRepository.usuarioLogado
         if (usuario == null) {
             irParaLogin()
-            return
+            return   // para aqui: não monta a tela
         }
 
         enableEdgeToEdge()
-        setContentView(R.layout.activity_principal)
+        setContentView(R.layout.activity_principal)       // liga ao XML da tela
         findViewById<View>(R.id.main).aplicarMargensDoSistema()
 
+        // "Olá, João Silva!": o %1$s do strings.xml é trocado pelo nome.
         findViewById<TextView>(R.id.txtOla).text = getString(R.string.principal_ola, usuario.nome)
+        // Frase diferente conforme o tipo de usuário (médico ou paciente).
         findViewById<TextView>(R.id.txtTipo).setText(
             if (usuario.tipo == TipoUsuario.MEDICO) R.string.principal_tipo_medico
             else R.string.principal_tipo_paciente
@@ -81,6 +92,7 @@ class PrincipalActivity : AppCompatActivity() {
             carregarConsultasPaciente(usuario.id)
         }
 
+        // Botão "Sair": esquece quem estava logado e volta para o login.
         findViewById<View>(R.id.btnSair).setOnClickListener {
             MedAgendaRepository.logout()
             irParaLogin()
@@ -392,6 +404,8 @@ class PrincipalActivity : AppCompatActivity() {
         }
     }
 
+    // Abre o login e apaga as telas anteriores, para o "voltar" não retornar
+    // à tela principal depois de sair.
     private fun irParaLogin() {
         val login = Intent(this, LoginActivity::class.java)
         login.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

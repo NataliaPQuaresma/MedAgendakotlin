@@ -31,6 +31,17 @@ import java.util.Locale
  *  - POST /consultas                  -> agendarConsulta (validação de horário livre)
  *  - PUT  /consultas/{id}             -> remarcarConsulta (alteração de data/horário)
  *  - DELETE /consultas/{id}           -> cancelarConsulta (exclusão de agendamento)
+ *
+ * EM PALAVRAS SIMPLES:
+ * - É o "banco de dados" do app: o ÚNICO lugar que guarda e busca dados.
+ *   As telas nunca mexem nos dados direto; sempre pedem para o repositório.
+ * - Por enquanto os dados ficam em listas na memória (somem ao fechar o app).
+ * - Por que `object` e não `class`: existe UM só repositório no app inteiro.
+ *   Assim, o paciente cadastrado numa tela é o mesmo que a tela de login encontra depois.
+ * - Por que `suspend`: chamar uma API demora; uma função `suspend` pode esperar
+ *   sem travar a tela. Já deixamos assim para a API encaixar sem mudar as telas.
+ *
+ * Liga com: Login, Cadastros, Principal e Agendar Consulta.
  */
 object MedAgendaRepository {
 
@@ -46,6 +57,9 @@ object MedAgendaRepository {
     }
 
     /** Lista de pacientes cadastrados (simulando a tabela 'pacientes' do banco de dados). */
+    // `mutableList` = lista que pode crescer (cada cadastro novo entra aqui).
+    // `private` = só o repositório mexe nesta lista; as telas não têm acesso direto.
+    // Já começa com pacientes de teste, para conseguir fazer login logo de cara.
     private val pacientes = mutableListOf(
         Paciente(1, "João Silva", "54999990000", "teste@email.com", "123456"),
         Paciente(2, "Mariana Costa", "54988776655", "mariana@email.com", "123456"),
@@ -54,6 +68,7 @@ object MedAgendaRepository {
     )
 
     /** Lista de médicos cadastrados (simulando a tabela 'medicos' com múltiplas especialidades). */
+    // Separada da de pacientes, como pedido no projeto (cada um tem dados diferentes).
     private val medicos = mutableListOf(
         Medico(1, "Carlos Santos", "54988880000", "medico@email.com", "12345-RS", "Cardiologia", "123456"),
         Medico(2, "Fernanda Lima", "54988880001", "fernanda@email.com", "23456-RS", "Clínica Geral", "123456"),
@@ -114,23 +129,36 @@ object MedAgendaRepository {
     )
 
     /** Usuário atualmente autenticado na sessão ativa do app. */
+    // `null` = ninguém logado.
+    // `private set` = qualquer tela pode LER, mas só o repositório pode MUDAR
+    // (no login e no logout). Evita que uma tela "logue" alguém por engano.
     var usuarioLogado: UsuarioLogado? = null
         private set
 
     /** Validação de unicidade de e-mail entre pacientes e médicos. */
+    // Confere nas DUAS tabelas: a mesma pessoa não pode ter o mesmo e-mail como médico
+    // e como paciente, senão o login não saberia qual conta abrir.
+    // `ignoreCase = true` = trata "Teste@Email.com" e "teste@email.com" como iguais.
     private fun emailJaExiste(email: String): Boolean =
         pacientes.any { it.email.equals(email, ignoreCase = true) } ||
             medicos.any { it.email.equals(email, ignoreCase = true) }
 
     /** Cadastra novo paciente após validar se o e-mail não foi utilizado. */
+    // Chamada pela CadastroPacienteActivity (futuro: POST /pacientes).
     suspend fun cadastrarPaciente(paciente: Paciente): Resultado<Paciente> {
+        // 1) E-mail repetido? Não cadastra e devolve o erro para a tela mostrar.
         if (emailJaExiste(paciente.email)) return Resultado.Erro("Este e-mail já está cadastrado.")
+        // 2) Gera o próximo id: maior id da lista + 1 (`?: 0` = se a lista estiver vazia, usa 0).
+        //    `copy` cria uma cópia igual do paciente, só que com o id novo.
         val novo = paciente.copy(id = (pacientes.maxOfOrNull { it.id } ?: 0) + 1)
+        // 3) Salva na "tabela" e avisa a tela que deu certo.
         pacientes.add(novo)
         return Resultado.Sucesso(novo)
     }
 
     /** Cadastra novo médico após validar e-mail e CRM. */
+    // Chamada pela CadastroMedicoActivity (futuro: POST /medicos).
+    // Igual ao paciente, mas também confere o CRM, que é único para cada médico.
     suspend fun cadastrarMedico(medico: Medico): Resultado<Medico> {
         if (emailJaExiste(medico.email)) return Resultado.Erro("Este e-mail já está cadastrado.")
         if (medicos.any { it.crm.equals(medico.crm, ignoreCase = true) }) {
@@ -141,6 +169,8 @@ object MedAgendaRepository {
         return Resultado.Sucesso(novo)
     }
 
+    // LISTAR (futuro: GET /pacientes e GET /medicos): servem para consultar as tabelas.
+    // `toList()` devolve uma CÓPIA, para ninguém de fora alterar a lista original.
     suspend fun listarPacientes(): List<Paciente> = pacientes.toList()
 
     suspend fun listarMedicos(): List<Medico> = medicos.toList()
@@ -262,19 +292,30 @@ object MedAgendaRepository {
     /**
      * Autenticação unificada: verifica nas listas de médicos e pacientes.
      * Retorna um objeto UsuarioLogado sem expor a senha em memória.
+     *
+     * Como funciona (futuro: POST /login):
+     *  1) Procura na tabela de MÉDICOS alguém com esse e-mail e essa senha.
+     *  2) Se não achar, procura na tabela de PACIENTES.
+     *  3) Se não achar em nenhuma, devolve erro.
+     * Assim, a mesma tela de login serve para os dois tipos de usuário.
      */
     suspend fun login(email: String, senha: String): Resultado<UsuarioLogado> {
+        // `find` = procura o primeiro que atende a condição (ou null se não achar).
+        // `?.let { ... }` = SE achou, transforma em UsuarioLogado (sem a senha).
+        // `?:` = "se não achou, tenta o próximo"; o último `?:` desiste e devolve o erro.
         val usuario = medicos.find { it.email.equals(email, true) && it.senha == senha }
             ?.let { UsuarioLogado(it.id, it.nome, it.email, TipoUsuario.MEDICO) }
             ?: pacientes.find { it.email.equals(email, true) && it.senha == senha }
                 ?.let { UsuarioLogado(it.id, it.nome, it.email, TipoUsuario.PACIENTE) }
             ?: return Resultado.Erro("E-mail ou senha incorretos.")
 
+        // Guarda quem entrou, para a tela principal saber o nome e o tipo.
         usuarioLogado = usuario
         return Resultado.Sucesso(usuario)
     }
 
     /** Encerra a sessão ativa. */
+    // "Esquece" quem estava logado. Chamado pelo botão "Sair" da tela principal.
     fun logout() {
         usuarioLogado = null
     }

@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Campos usados nos dois cadastros (paciente e médico). Incluído com <include>. -->
+<!--
+    CAMPOS EM COMUM DOS DOIS CADASTROS: nome, telefone, e-mail, senha e confirmar senha.
+
+    Por que um arquivo separado: os dois cadastros (paciente e médico) têm estes
+    mesmos campos. Em vez de copiar e colar nos dois, eles ficam aqui, e cada
+    cadastro "puxa" este arquivo com <include layout="@layout/campos_comuns_cadastro" />.
+
+    <merge> = os campos são colocados direto dentro da tela que fez o include,
+    sem criar uma caixa a mais em volta.
+
+    Código que usa estes campos: ui/cadastro/CamposComuns.kt
+-->
+
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
@@ -22,7 +34,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="phone" />
+            android:inputType="phone" />  <!-- abre o teclado numérico de telefone -->
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
