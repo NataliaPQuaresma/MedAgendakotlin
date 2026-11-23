@@ -41,6 +41,9 @@
         <activity
             android:name=".ui.principal.PrincipalActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.agendamento.AgendarConsultaActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

@@ -38,6 +38,48 @@
     <string name="principal_tipo_medico">Você entrou como médico.</string>
     <string name="btn_sair">Sair</string>
 
+    <!-- Agenda do médico -->
+    <string name="agenda_titulo">Sua Agenda</string>
+    <string name="agenda_instrucao">Selecione uma data no calendário para ver os pacientes agendados</string>
+    <string name="agenda_consultas_do_dia">Consultas em %1$s</string>
+    <string name="agenda_sem_consultas">Nenhum paciente agendado para esta data.</string>
+    <string name="agenda_proximas_consultas">Todas as consultas agendadas</string>
+    <string name="agenda_paciente_nome">Paciente: %1$s</string>
+
+    <!-- Paciente e Agendamento -->
+    <string name="btn_nova_consulta">Agendar Consulta</string>
+    <string name="paciente_minhas_consultas">Suas Consultas Agendadas</string>
+    <string name="paciente_sem_consultas">Você ainda não tem consultas agendadas. Clique em \"Agendar Consulta\" acima para marcar.</string>
+    <string name="agendar_titulo">Agendar Consulta</string>
+    <string name="agendar_subtitulo">Escolha a especialidade, o médico e uma data com horário livre</string>
+    <string name="agendar_todas_especialidades">Todas as especialidades</string>
+    <string name="agendar_selecione_medico">Selecione o médico desejado</string>
+    <string name="agendar_data_selecionada">Data selecionada: %1$s</string>
+    <string name="agendar_horarios_disponiveis">Horários disponíveis para este dia:</string>
+    <string name="agendar_sem_horarios">Nenhum horário livre nesta data para este médico. Escolha outra data.</string>
+    <string name="agendar_motivo_hint">Tipo ou motivo da consulta (ex: Rotina, Retorno)</string>
+    <string name="btn_confirmar_agendamento">Confirmar Agendamento</string>
+    <string name="msg_consulta_agendada_sucesso">Consulta agendada com sucesso!</string>
+    <string name="erro_selecione_medico">Por favor, selecione um médico.</string>
+    <string name="erro_selecione_horario">Por favor, selecione um horário livre.</string>
+
+    <!-- Gerenciamento de Consultas -->
+    <string name="gerenciar_titulo">Gerenciar Consulta</string>
+    <string name="gerenciar_agendado_para">Agendado para: %1$s às %2$s</string>
+    <string name="gerenciar_mudar_data">Mudar data e horário:</string>
+    <string name="gerenciar_escolher_nova_data">Escolher nova data</string>
+    <string name="gerenciar_nova_data_selecionada">Nova data: %1$s</string>
+    <string name="gerenciar_salvar_remarcacao">Salvar Nova Data / Horário</string>
+    <string name="gerenciar_cancelar_consulta">Cancelar Consulta</string>
+    <string name="gerenciar_confirmar_cancelamento_titulo">Cancelar consulta?</string>
+    <string name="gerenciar_confirmar_cancelamento_msg">Tem certeza de que deseja cancelar esta consulta?</string>
+    <string name="gerenciar_sim_cancelar">Sim, cancelar</string>
+    <string name="gerenciar_nao">Não</string>
+    <string name="gerenciar_consulta_cancelada">Consulta cancelada com sucesso.</string>
+    <string name="gerenciar_consulta_remarcada">Consulta remarcada com sucesso!</string>
+    <string name="gerenciar_toque_para_editar">(Toque na consulta para editar ou cancelar)</string>
+    <string name="btn_fechar">Fechar</string>
+
     <!-- Erros de validação -->
     <string name="erro_obrigatorio">Campo obrigatório</string>
     <string name="erro_email">E-mail inválido</string>

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:fillViewport="true"
     tools:context=".ui.principal.PrincipalActivity">
 
     <LinearLayout
@@ -25,23 +26,177 @@
             android:id="@+id/txtOla"
             style="@style/MedAgenda.Titulo"
             android:layout_marginTop="4dp"
-            tools:text="Olá, João Silva!" />
+            tools:text="Olá, Carlos Santos!" />
 
         <TextView
             android:id="@+id/txtTipo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            tools:text="@string/principal_tipo_paciente" />
+            tools:text="@string/principal_tipo_medico" />
 
-        <!-- As próximas funcionalidades (médicos, agendamento, consultas) entram aqui. -->
+        <!-- Seção da Agenda do Médico -->
+        <LinearLayout
+            android:id="@+id/layoutAgendaMedico"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/agenda_titulo"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="12dp"
+                android:text="@string/agenda_instrucao"
+                android:textColor="#666666"
+                android:textSize="13sp" />
+
+            <!-- Card com o Calendário -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="2dp"
+                app:strokeColor="@color/azul_medagenda_claro"
+                app:strokeWidth="1dp">
+
+                <CalendarView
+                    android:id="@+id/calendarView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Título do dia selecionado -->
+            <TextView
+                android:id="@+id/txtDataSelecionada"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:layout_marginBottom="8dp"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="Consultas em 22/11/2026" />
+
+            <!-- Container com as consultas do dia selecionado -->
+            <LinearLayout
+                android:id="@+id/containerConsultasDoDia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <!-- Aviso quando não há consultas na data -->
+            <TextView
+                android:id="@+id/txtSemConsultasDia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_aviso_vazio"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="@string/agenda_sem_consultas"
+                android:textColor="#757575"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <!-- Próximas consultas agendadas do médico -->
+            <TextView
+                android:id="@+id/txtTituloProximas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/agenda_proximas_consultas"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/containerTodasConsultas"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </LinearLayout>
+
+        <!-- Seção do Paciente -->
+        <LinearLayout
+            android:id="@+id/layoutPaciente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <!-- Botão para agendar nova consulta -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnNovaConsulta"
+                style="@style/MedAgenda.BotaoPrincipal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="0dp"
+                android:text="@string/btn_nova_consulta" />
+
+            <!-- Título das consultas agendadas do paciente -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/paciente_minhas_consultas"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="8dp"
+                android:text="@string/gerenciar_toque_para_editar"
+                android:textColor="#666666"
+                android:textSize="12sp" />
+
+            <!-- Aviso quando o paciente não tem consultas -->
+            <TextView
+                android:id="@+id/txtSemConsultasPaciente"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_aviso_vazio"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="@string/paciente_sem_consultas"
+                android:textColor="#757575"
+                android:textSize="14sp"
+                android:visibility="gone"
+                tools:visibility="visible" />
+
+            <!-- Lista de consultas agendadas do paciente -->
+            <LinearLayout
+                android:id="@+id/containerConsultasPaciente"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSair"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="24dp"
             android:text="@string/btn_sair" />
     </LinearLayout>
-</LinearLayout>
+</ScrollView>

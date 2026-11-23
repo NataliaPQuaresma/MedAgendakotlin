@@ -84,6 +84,7 @@ class LoginActivity : AppCompatActivity() {
                     // Limpa a pilha: ao apertar "voltar" na tela principal, o app fecha em vez de voltar ao login.
                     principal.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     startActivity(principal)
+                    finish()
                 }
                 is Resultado.Erro -> {
                     Toast.makeText(this@LoginActivity, resultado.mensagem, Toast.LENGTH_SHORT).show()
