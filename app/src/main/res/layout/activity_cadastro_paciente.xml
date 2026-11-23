@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    VISUAL DA TELA DE CADASTRO DO PACIENTE
+    Código que controla esta tela: ui/cadastro/CadastroPacienteActivity.kt
+
+    O paciente só tem os campos em comum, então esta tela é: título,
+    os campos do <include> e os botões "Cadastrar" e "Voltar".
+    ScrollView permite rolar quando o teclado está aberto.
+-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"

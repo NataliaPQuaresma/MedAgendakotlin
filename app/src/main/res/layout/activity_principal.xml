@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    VISUAL DA TELA PRINCIPAL (depois do login)
+    Código que controla esta tela: ui/principal/PrincipalActivity.kt
+
+    txtOla e txtTipo começam vazios: o Kotlin preenche com o nome e o tipo
+    de quem fez login. O "tools:text" só aparece na pré-visualização do
+    Android Studio, não no app de verdade.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"

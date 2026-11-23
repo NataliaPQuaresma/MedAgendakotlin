@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    VISUAL DA TELA DE CADASTRO DO MÉDICO
+    Código que controla esta tela: ui/cadastro/CadastroMedicoActivity.kt
+
+    Igual à do paciente (usa o mesmo <include> dos campos em comum),
+    mais os dois campos exclusivos do médico: CRM e Especialidade.
+-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -29,7 +36,7 @@
             <com.google.android.material.textfield.TextInputEditText
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textCapCharacters" />
+                android:inputType="textCapCharacters" />  <!-- teclado já em maiúsculas -->
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout

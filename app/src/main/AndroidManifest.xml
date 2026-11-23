@@ -2,8 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Quando a API for ligada: adicionar <uses-permission android:name="android.permission.INTERNET" /> -->
+<!--
+    MANIFEST: a "carteira de identidade" do app.
+    Diz ao Android o nome do app, o ícone, o tema e TODAS as telas (activities).
+    Toda tela nova PRECISA ser registrada aqui, senão o app fecha ao tentar abri-la.
+-->
 
+    <!-- Quando a API for ligada: adicionar <uses-permission android:name="android.permission.INTERNET" />
+         (sem essa permissão, o Android bloqueia o acesso à internet) -->
+
+    <!-- label = nome do app, icon = ícone, theme = cores (res/values/themes.xml) -->
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,7 +22,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MedAgenda">
 
-        <!-- Tela inicial do app -->
+        <!-- TELA INICIAL DO APP: o intent-filter com MAIN + LAUNCHER faz o Login
+             ser a tela que abre ao tocar no ícone.
+             launchMode="singleTop": quando o cadastro volta para o login, reaproveita
+             o login que já estava aberto (por isso o LoginActivity tem o onNewIntent).
+             exported="true": o celular pode abrir esta tela (pelo ícone). -->
         <activity
             android:name=".ui.login.LoginActivity"
             android:exported="true"
@@ -27,6 +39,8 @@
             </intent-filter>
         </activity>
 
+        <!-- Demais telas. exported="false": só o próprio app pode abri-las.
+             adjustResize: a tela "encolhe" quando o teclado abre, para os campos não ficarem escondidos. -->
         <activity
             android:name=".ui.cadastro.EscolhaTipoActivity"
             android:exported="false" />
