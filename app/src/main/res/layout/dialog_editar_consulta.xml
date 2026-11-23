@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <!-- Título do Dialog -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/gerenciar_titulo"
+        android:textColor="?attr/colorPrimary"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Médico e Especialidade -->
+    <TextView
+        android:id="@+id/txtDialogMedico"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="?attr/colorSecondary"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        tools:text="Dr. Carlos Santos • Cardiologia" />
+
+    <!-- Agendamento atual -->
+    <TextView
+        android:id="@+id/txtDialogAtual"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:textColor="#666666"
+        android:textSize="13sp"
+        tools:text="Agendado para: 23/11/2026 às 09:00" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="14dp"
+        android:background="#E0E0E0" />
+
+    <!-- Opção de Mudar Data/Horário -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/gerenciar_mudar_data"
+        android:textColor="?attr/colorPrimary"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEscolherNovaData"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/gerenciar_escolher_nova_data" />
+
+    <TextView
+        android:id="@+id/txtNovaDataEscolhida"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="?attr/colorSecondary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        tools:text="Nova data: 25/11/2026"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/txtLabelHorariosLivres"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/agendar_horarios_disponiveis"
+        android:textColor="#666666"
+        android:textSize="13sp"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/chipGroupNovosHorarios"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        app:singleSelection="true" />
+
+    <TextView
+        android:id="@+id/txtSemHorariosDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_aviso_vazio"
+        android:gravity="center"
+        android:padding="10dp"
+        android:text="@string/agendar_sem_horarios"
+        android:textColor="#757575"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnConfirmarRemarcacao"
+        style="@style/MedAgenda.BotaoPrincipal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/gerenciar_salvar_remarcacao"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginVertical="14dp"
+        android:background="#E0E0E0" />
+
+    <!-- Ações de Cancelar / Fechar -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnCancelarConsulta"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/gerenciar_cancelar_consulta"
+        android:textColor="#D32F2F" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnFecharDialog"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_fechar" />
+</LinearLayout>
