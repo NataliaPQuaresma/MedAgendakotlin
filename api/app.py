@@ -96,6 +96,55 @@ def criar_consulta():
     return jsonify(nova), 201                        # 201 = "criado com sucesso"
 
 
+#  REMARCAR CONSULTA (PUT)
+# Troca a data, a hora (e, se vier, o motivo) de uma ficha que já existe.
+# Usada pelo app quando o paciente toca em "Salvar Nova Data / Horário".
+@app.route("/consultas/<int:consulta_id>", methods=["PUT"])
+def remarcar_consulta(consulta_id):
+    dados = request.get_json()                       # nova data e hora que vieram do app
+
+    conexao = conectar()                             # abre o fichário
+    conexao.row_factory = sqlite3.Row
+    atual = conexao.execute("SELECT * FROM consultas WHERE id = ?", (consulta_id,)).fetchone()
+    if atual is None:                                # não achou a ficha
+        conexao.close()
+        return jsonify({"mensagem": "Consulta não encontrada."}), 404   # 404 = "não encontrado"
+
+    # o médico já tem outra consulta nesse dia e horário? (não conta a própria ficha)
+    ocupado = conexao.execute(
+        "SELECT 1 FROM consultas WHERE medico_id = ? AND data = ? AND hora = ? AND id != ?",
+        (atual["medico_id"], dados["data"], dados["hora"], consulta_id)
+    ).fetchone()
+    if ocupado:
+        conexao.close()
+        return jsonify({"mensagem": "Este horário já está ocupado para o médico nesta data."}), 409   # 409 = "conflito"
+
+    motivo = dados.get("motivo") or atual["motivo"]  # se não mandou motivo novo, mantém o antigo
+    conexao.execute(
+        "UPDATE consultas SET data = ?, hora = ?, motivo = ? WHERE id = ?",
+        (dados["data"], dados["hora"], motivo, consulta_id)
+    )
+    conexao.commit()                                 # "pode arquivar"
+    atualizada = dict(conexao.execute("SELECT * FROM consultas WHERE id = ?", (consulta_id,)).fetchone())
+    conexao.close()                                  # fecha a gaveta
+
+    return jsonify(atualizada)                       # devolve a ficha já atualizada
+
+
+#  CANCELAR CONSULTA (DELETE)
+# Tira a ficha do fichário. Usada pelo app no botão "Cancelar Consulta".
+@app.route("/consultas/<int:consulta_id>", methods=["DELETE"])
+def cancelar_consulta(consulta_id):
+    conexao = conectar()                             # abre o fichário
+    cursor = conexao.execute("DELETE FROM consultas WHERE id = ?", (consulta_id,))
+    conexao.commit()
+    conexao.close()
+
+    if cursor.rowcount == 0:                         # nenhuma ficha apagada = não existia
+        return jsonify({"mensagem": "Consulta não encontrada."}), 404
+    return jsonify({"mensagem": "Consulta cancelada com sucesso."})
+
+
 # --- LIGAR O SERVIDOR ---
 if __name__ == "__main__":
     app.run(debug=True)
