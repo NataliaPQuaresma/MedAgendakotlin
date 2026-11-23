@@ -8,11 +8,14 @@
     Toda tela nova PRECISA ser registrada aqui, senão o app fecha ao tentar abri-la.
 -->
 
-    <!-- Quando a API for ligada: adicionar <uses-permission android:name="android.permission.INTERNET" />
-         (sem essa permissão, o Android bloqueia o acesso à internet) -->
+    <!-- Permissão de internet: sem ela, o Android bloqueia o acesso à API. -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- label = nome do app, icon = ícone, theme = cores (res/values/themes.xml) -->
+    <!-- label = nome do app, icon = ícone, theme = cores (res/values/themes.xml)
+         networkSecurityConfig: libera "http" (sem "s") só para o endereço da API local
+         (veja res/xml/network_security_config.xml). -->
     <application
+        android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"

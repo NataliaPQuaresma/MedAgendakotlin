@@ -42,6 +42,7 @@
     <string name="principal_tipo_paciente">Você entrou como paciente.</string>
     <string name="principal_tipo_medico">Você entrou como médico.</string>
     <string name="btn_sair">Sair</string>
+    <string name="aviso_sem_api">Sem conexão com a API: mostrando os dados de exemplo do app.</string>
 
     <!-- Agenda do médico -->
     <string name="agenda_titulo">Sua Agenda</string>

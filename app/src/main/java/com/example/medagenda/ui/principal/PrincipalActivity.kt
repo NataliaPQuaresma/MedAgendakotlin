@@ -122,6 +122,7 @@ class PrincipalActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val consultas = MedAgendaRepository.listarConsultasDoPaciente(pacienteId)
+            avisarSeSemApi()
             containerConsultasPaciente.removeAllViews()
 
             if (consultas.isEmpty()) {
@@ -313,6 +314,7 @@ class PrincipalActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             val consultas = MedAgendaRepository.listarConsultasDoMedico(medicoId)
+            avisarSeSemApi()
 
             val atualizarDia = { ano: Int, mes: Int, dia: Int ->
                 val dataIso = String.format(Locale.getDefault(), "%04d-%02d-%02d", ano, mes + 1, dia)
@@ -401,6 +403,14 @@ class PrincipalActivity : AppCompatActivity() {
                 hoje.get(Calendar.MONTH),
                 hoje.get(Calendar.DAY_OF_MONTH)
             )
+        }
+    }
+
+    // Se o repositório não conseguiu falar com a API, avisa (uma vez só) que o app
+    // está mostrando os dados de exemplo da memória.
+    private fun avisarSeSemApi() {
+        if (MedAgendaRepository.precisaAvisarSemApi()) {
+            Toast.makeText(this, R.string.aviso_sem_api, Toast.LENGTH_LONG).show()
         }
     }
 

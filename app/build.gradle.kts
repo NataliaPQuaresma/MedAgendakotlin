@@ -38,6 +38,10 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.core.ktx)
     implementation(libs.material)
+    // Retrofit: biblioteca que faz as chamadas à API (HTTP).
+    // converter-gson: transforma o JSON da API em classes Kotlin (e vice-versa).
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)

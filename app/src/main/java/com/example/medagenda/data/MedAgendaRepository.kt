@@ -1,10 +1,19 @@
 package com.example.medagenda.data
 
+import com.example.medagenda.data.api.ApiClient
+import com.example.medagenda.data.api.ConsultaApi
+import com.example.medagenda.data.api.MensagemApi
+import com.example.medagenda.data.api.NovaConsultaApi
+import com.example.medagenda.data.api.RemarcarConsultaApi
 import com.example.medagenda.model.Consulta
 import com.example.medagenda.model.Medico
 import com.example.medagenda.model.Paciente
 import com.example.medagenda.model.TipoUsuario
 import com.example.medagenda.model.UsuarioLogado
+import com.google.gson.Gson
+import com.google.gson.JsonParseException
+import retrofit2.HttpException
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -26,11 +35,16 @@ import java.util.Locale
  *  - POST /medicos                    -> cadastrarMedico (cria novo médico)
  *  - GET  /medicos                    -> listarMedicos
  *  - POST /login                      -> login (autenticação de médico ou paciente)
- *  - GET  /consultas?medicoId={id}    -> listarConsultasDoMedico (agenda do médico)
- *  - GET  /consultas?pacienteId={id}  -> listarConsultasDoPaciente (consultas do paciente)
+ *
+ * Rotas de CONSULTAS já ligadas à API da Natalia (api/app.py, porta 5000):
+ *  - GET  /medicos/{id}/consultas     -> listarConsultasDoMedico (agenda do médico)
+ *  - GET  /medicos/{id}/consultas?data=AAAA-MM-DD -> listarConsultasDoMedicoPorData
+ *  - GET  /consultas                  -> listarConsultasDoPaciente (filtra pelo nome do paciente)
  *  - POST /consultas                  -> agendarConsulta (validação de horário livre)
  *  - PUT  /consultas/{id}             -> remarcarConsulta (alteração de data/horário)
  *  - DELETE /consultas/{id}           -> cancelarConsulta (exclusão de agendamento)
+ * Se a API estiver desligada, essas funções usam a lista `consultas` da memória.
+ * Pacientes, médicos e login ainda ficam só na memória (a API não tem essas rotas).
  *
  * EM PALAVRAS SIMPLES:
  * - É o "banco de dados" do app: o ÚNICO lugar que guarda e busca dados.
@@ -190,20 +204,111 @@ object MedAgendaRepository {
             medicos.filter { it.especialidade.equals(especialidade, ignoreCase = true) }
         }
 
+    // =====================================================================
+    // CONSULTAS: LIGADAS À API (api/app.py)
+    // Cada função tenta primeiro a API. Se a API estiver desligada ou sem
+    // conexão, usa a lista `consultas` da memória (os dados de exemplo).
+    // =====================================================================
+
+    /**
+     * `true` = a última conversa com a API deu certo; `false` = estamos usando a memória.
+     * As telas podem ler; só o repositório muda.
+     */
+    var usandoApi: Boolean = true
+        private set
+
+    // Para mostrar o aviso "sem API" uma vez só, e não a cada vez que a tela recarrega.
+    private var avisoSemApiMostrado = false
+
+    private fun marcarApi(funcionou: Boolean) {
+        if (funcionou) avisoSemApiMostrado = false   // a API voltou: se cair de novo, avisa de novo
+        usandoApi = funcionou
+    }
+
+    /** A tela Principal chama isto para saber se deve mostrar o aviso "sem API". */
+    fun precisaAvisarSemApi(): Boolean {
+        if (usandoApi || avisoSemApiMostrado) return false
+        avisoSemApiMostrado = true
+        return true
+    }
+
+    /**
+     * Tenta buscar na API; se não conseguir, usa a memória.
+     * - IOException = sem conexão (API desligada, endereço errado...).
+     * - HttpException = a API respondeu com erro (ex.: 500).
+     * - JsonParseException = a resposta veio num formato inesperado.
+     * Em qualquer desses casos, a tela continua funcionando com os dados da memória.
+     */
+    private suspend fun <T> buscarNaApiOuMemoria(naApi: suspend () -> T, naMemoria: () -> T): T =
+        try {
+            naApi().also { marcarApi(true) }
+        } catch (e: IOException) {
+            marcarApi(false)
+            naMemoria()
+        } catch (e: HttpException) {
+            marcarApi(false)
+            naMemoria()
+        } catch (e: JsonParseException) {
+            marcarApi(false)
+            naMemoria()
+        }
+
+    /** Pega a mensagem de erro que a API mandou, ex.: {"mensagem": "Este horário já está ocupado..."}. */
+    private fun mensagemDaApi(e: HttpException): String =
+        try {
+            e.response()?.errorBody()?.string()
+                ?.let { Gson().fromJson(it, MensagemApi::class.java)?.mensagem }
+        } catch (_: Exception) {
+            null
+        } ?: "Erro na API (código ${e.code()})."
+
+    /**
+     * Converte a consulta que veio da API (ConsultaApi) para o modelo do app (Consulta).
+     * A API só guarda o id do médico e o NOME do paciente; o resto (nome do médico,
+     * especialidade, telefone) o app completa com as listas de médicos e pacientes.
+     */
+    private fun ConsultaApi.paraConsulta(): Consulta {
+        val medico = medicos.find { it.id == medicoId }
+        val pacienteCadastrado = pacientes.find { it.nome == paciente }
+        return Consulta(
+            id = id,
+            medicoId = medicoId,
+            medicoNome = medico?.let { "Dr(a). ${it.nome}" } ?: "",
+            medicoEspecialidade = medico?.especialidade ?: "",
+            pacienteId = pacienteCadastrado?.id ?: 0,
+            pacienteNome = paciente,
+            pacienteTelefone = pacienteCadastrado?.telefone ?: "",
+            data = data,
+            horario = hora,
+            tipoConsulta = motivo ?: "Consulta de rotina",
+        )
+    }
+
     /** Retorna as consultas do médico autenticado, ordenadas cronologicamente por data e hora. */
+    // API: GET /medicos/{id}/consultas
     suspend fun listarConsultasDoMedico(medicoId: Int): List<Consulta> =
-        consultas.filter { it.medicoId == medicoId }
-            .sortedWith(compareBy({ it.data }, { it.horario }))
+        buscarNaApiOuMemoria(
+            naApi = { ApiClient.consultas.listarDoMedico(medicoId).map { it.paraConsulta() } },
+            naMemoria = { consultas.filter { it.medicoId == medicoId } }
+        ).sortedWith(compareBy({ it.data }, { it.horario }))
 
     /** Retorna as consultas do paciente autenticado, ordenadas por data e hora. */
-    suspend fun listarConsultasDoPaciente(pacienteId: Int): List<Consulta> =
-        consultas.filter { it.pacienteId == pacienteId }
-            .sortedWith(compareBy({ it.data }, { it.horario }))
+    // API: GET /consultas, filtrando pelo NOME do paciente (a API guarda o nome, não o id).
+    suspend fun listarConsultasDoPaciente(pacienteId: Int): List<Consulta> {
+        val nome = pacientes.find { it.id == pacienteId }?.nome
+        return buscarNaApiOuMemoria(
+            naApi = { ApiClient.consultas.listarTodas().filter { it.paciente == nome }.map { it.paraConsulta() } },
+            naMemoria = { consultas.filter { it.pacienteId == pacienteId } }
+        ).sortedWith(compareBy({ it.data }, { it.horario }))
+    }
 
     /** Retorna as consultas de um médico para um dia específico (usado no clique do calendário). */
+    // API: GET /medicos/{id}/consultas?data=AAAA-MM-DD
     suspend fun listarConsultasDoMedicoPorData(medicoId: Int, data: String): List<Consulta> =
-        consultas.filter { it.medicoId == medicoId && it.data == data }
-            .sortedBy { it.horario }
+        buscarNaApiOuMemoria(
+            naApi = { ApiClient.consultas.listarDoMedico(medicoId, data).map { it.paraConsulta() } },
+            naMemoria = { consultas.filter { it.medicoId == medicoId && it.data == data } }
+        ).sortedBy { it.horario }
 
     /**
      * REGRA DE NEGÓCIO ESSENCIAL:
@@ -216,8 +321,8 @@ object MedAgendaRepository {
             "08:00", "09:00", "10:00", "11:00",
             "13:30", "14:30", "15:30", "16:30", "17:30",
         )
-        val horariosOcupados = consultas
-            .filter { it.medicoId == medicoId && it.data == data }
+        // Horários já ocupados nesse dia (vêm da API, ou da memória se ela estiver fora)
+        val horariosOcupados = listarConsultasDoMedicoPorData(medicoId, data)
             .map { it.horario }
             .toSet()
         return horariosPadrao.filter { it !in horariosOcupados }
@@ -227,32 +332,63 @@ object MedAgendaRepository {
      * Agenda uma nova consulta.
      * Valida atomicamente se o médico está livre no dia/horário antes de confirmar.
      */
+    // API: POST /consultas
     suspend fun agendarConsulta(consulta: Consulta): Resultado<Consulta> {
         val medico = medicos.find { it.id == consulta.medicoId }
             ?: return Resultado.Erro("Médico não encontrado.")
 
         // Validação de concorrência: garante que outro paciente não ocupou o mesmo horário
-        val jaOcupado = consultas.any {
-            it.medicoId == consulta.medicoId && it.data == consulta.data && it.horario == consulta.horario
-        }
+        // (confere a agenda do dia na API, ou na memória se ela estiver fora)
+        val jaOcupado = listarConsultasDoMedicoPorData(consulta.medicoId, consulta.data)
+            .any { it.horario == consulta.horario }
         if (jaOcupado) {
             return Resultado.Erro("Este horário já está ocupado para o médico selecionado.")
         }
 
-        val novo = consulta.copy(
-            id = (consultas.maxOfOrNull { it.id } ?: 0) + 1,
-            medicoNome = if (consulta.medicoNome.isEmpty()) "Dr(a). ${medico.nome}" else consulta.medicoNome,
-            medicoEspecialidade = if (consulta.medicoEspecialidade.isEmpty()) medico.especialidade else consulta.medicoEspecialidade,
-        )
-        consultas.add(novo)
-        return Resultado.Sucesso(novo)
+        return try {
+            // Manda para a API, que grava no banco e devolve a consulta com o id gerado.
+            val criada = ApiClient.consultas.criar(
+                NovaConsultaApi(
+                    medicoId = consulta.medicoId,
+                    paciente = consulta.pacienteNome,
+                    data = consulta.data,
+                    hora = consulta.horario,
+                    motivo = consulta.tipoConsulta,
+                )
+            )
+            marcarApi(true)
+            Resultado.Sucesso(criada.paraConsulta())
+        } catch (e: HttpException) {
+            Resultado.Erro(mensagemDaApi(e))   // a API recusou: mostra o motivo que ela mandou
+        } catch (e: IOException) {
+            // Sem API: salva na memória, como era antes.
+            marcarApi(false)
+            val novo = consulta.copy(
+                id = (consultas.maxOfOrNull { it.id } ?: 0) + 1,
+                medicoNome = if (consulta.medicoNome.isEmpty()) "Dr(a). ${medico.nome}" else consulta.medicoNome,
+                medicoEspecialidade = if (consulta.medicoEspecialidade.isEmpty()) medico.especialidade else consulta.medicoEspecialidade,
+            )
+            consultas.add(novo)
+            Resultado.Sucesso(novo)
+        }
     }
 
     /**
      * Cancela uma consulta agendada pelo paciente.
      * A exclusão no repositório sincroniza em tempo real com a agenda do médico.
      */
+    // API: DELETE /consultas/{id}
     suspend fun cancelarConsulta(consultaId: Int): Resultado<Unit> {
+        try {
+            ApiClient.consultas.cancelar(consultaId)
+            marcarApi(true)
+            return Resultado.Sucesso(Unit)
+        } catch (e: HttpException) {
+            return Resultado.Erro(mensagemDaApi(e))   // ex.: 404 "Consulta não encontrada."
+        } catch (e: IOException) {
+            marcarApi(false)                          // sem API: cancela na memória (abaixo)
+        }
+
         val removido = consultas.removeAll { it.id == consultaId }
         return if (removido) Resultado.Sucesso(Unit)
         else Resultado.Erro("Consulta não encontrada.")
@@ -268,6 +404,19 @@ object MedAgendaRepository {
         novoHorario: String,
         novoMotivo: String? = null
     ): Resultado<Consulta> {
+        // API: PUT /consultas/{id}. A própria API confere se o novo horário está livre.
+        try {
+            val atualizada = ApiClient.consultas.remarcar(
+                consultaId, RemarcarConsultaApi(data = novaData, hora = novoHorario, motivo = novoMotivo)
+            )
+            marcarApi(true)
+            return Resultado.Sucesso(atualizada.paraConsulta())
+        } catch (e: HttpException) {
+            return Resultado.Erro(mensagemDaApi(e))   // ex.: 409 "Este horário já está ocupado..."
+        } catch (e: IOException) {
+            marcarApi(false)                          // sem API: remarca na memória (abaixo)
+        }
+
         val index = consultas.indexOfFirst { it.id == consultaId }
         if (index == -1) return Resultado.Erro("Consulta não encontrada.")
         val atual = consultas[index]

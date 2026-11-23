@@ -76,6 +76,11 @@ class AgendarConsultaActivity : AppCompatActivity() {
         edtMotivo = findViewById(R.id.edtMotivo)
         btnConfirmarAgendamento = findViewById(R.id.btnConfirmarAgendamento)
 
+        // Impede escolher datas que já passaram: os dias antes de hoje ficam
+        // apagados e não podem ser tocados (igual ao calendário de remarcar).
+        // O "- 1000" (1 segundo) garante que o próprio dia de hoje continue liberado.
+        calendarViewAgendamento.minDate = System.currentTimeMillis() - 1000
+
         // Inicializa o calendário com o dia de hoje
         val hoje = Calendar.getInstance()
         definirData(
